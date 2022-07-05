@@ -1,35 +1,3 @@
-# class Edge(object):
-
-#     def __init__(self, id_src, id_dest, weight, port_in, port_out):
-#         '''assume src and dest are nodes '''
-#         self.id_src = id_src
-#         self.id_dest = id_dest
-#         self.weight = weight
-#         self.port_in = port_in
-#         self.port_out = port_out
-
-#     def get_source(self):
-#         return self.id_src
-
-#     def get_destination(self):
-#         return self.id_dest
-
-#     def get_weight(self):
-#         return self.weight
-
-#     def get_port_in():
-#         return self.port_in
-
-#     def get_port_out():
-#         return self.port_out
-
-#     def __str__(self):
-#         return  'From {} to {} has cost = {}'.format(self.get_source().get_id(), 
-#                     self.get_destination().get_id(), self.get_weight() )
-#         # self.get_source + '-->' + \
-#         #    self.get_destination
-
-# class DeviceEdge():
 
 class Edge(object):
     """
@@ -66,14 +34,14 @@ class Edge(object):
 
     def set_weight(self, weight):
         self.weight = weight
-
+    
 class DeviceEdge(Edge):
     """
     Inherited from Edge object
     """
 
     def __init__(self, src, dest, weight, port_in, port_out):
-        super(DeviceEdge, self).__init__(src, dest, weight)
+        super(DeviceEdge, self).__init__(src, dest,  weight)
         self.port_in = port_in
         self.port_out = port_out
     

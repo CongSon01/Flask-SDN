@@ -9,19 +9,18 @@ import Dijkstra
 
 class hostServerConnectionRR(object):
 
-    def __init__(self, queue_rr, topo, hosts, servers, priority):
+    def __init__(self, topo_network, hosts, servers, index_server, priority):
         """
         topo: object topo network
         hosts: dictionary of host (key: ip, value: object)
         servers: dictionary of server (key: ip, value: object)
         """
-        self.topo = topo
+        self.topo = topo_network
         self.hosts = hosts
         self.servers = servers
+        self.index_server = index_server
         self.priority = priority
 
-        # khoi tao Queue cua Round robin
-        self.queue_rr = queue_rr
         # cap nhap lai trong so cua mang khi co thay doi
         # self.update_topo()
 
@@ -44,7 +43,10 @@ class hostServerConnectionRR(object):
         self.topo.read_update_weight(link_versions)
     
     def find_src(self):
-        host_object = self.hosts[self.host_ip]     
+        try:
+            host_object = self.hosts[self.host_ip]     
+        except:
+            print("Khong ton tai ip", self.host_ip)
         return host_object
 
     def find_shortest_path(self):
@@ -53,12 +55,16 @@ class hostServerConnectionRR(object):
         host_object = self.find_src()
 
         # Co che quay vong doi tuong cua Round robin
-        self.queue_rr.receive_queue()
-        dest_ip = self.queue_rr.get_dest_ip()
-        self.queue_rr.connectRabbitMQ(ip_dest= dest_ip)
+        # self.queue_rr.receive_queue()
+        dest_ip = list(self.servers)[self.index_server]
+        # self.queue_rr.connectRabbitMQ(ip_dest= dest_ip)
 
         # get dest objkect    
         dest_object = self.servers[dest_ip]
+
+
+        print("INDEX: ", self.index_server)
+        print("SERVER: ", dest_object.get_id())
         
         # khoi tao tap duong di de add flow
         path = ""

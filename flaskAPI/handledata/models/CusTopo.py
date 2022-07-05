@@ -1,6 +1,7 @@
 import sys
 sys.path.append('/home/onos/Downloads/flaskSDN/flaskAPI/model')
 import LinkCost
+import LearnWeightModel
 
 class Topo(object):
     """Topology network object """
@@ -48,9 +49,8 @@ class Topo(object):
         dest_object = edge.get_dest()
         weight = edge.get_weight()
         
-        # print("src_object: ", src_object.get_id())
-        # print("dest_object: ", dest_object.get_id())
-        # print("node: ", self.nodes)
+        # print("src_object: ", src_object)
+        # print("dest_object: ", dest_object)
 
         if not (src_object in self.nodes and dest_object in self.nodes):
             raise ValueError('Node not in graph')
@@ -117,10 +117,13 @@ class Topo(object):
         """
         link_cost = LinkCost.get_multiple_data()
 
+        # learn_links = LearnWeightModel.get_multiple_data()
+
         for link in link_cost:
             src = link['src']
             dst = link['dst']
             weight = link['weight']
+            # label = link['label']
             # print("from", src, "to", dst, "    =", weight)
 
             src_object = self.find_device(src)
@@ -128,18 +131,8 @@ class Topo(object):
           
             try:
                 found, edge = self.find_edge_from_mongo(src= src_object, dest= dest_object)
+                # label = self.get_label_from_mongo(src=src_object)
                 
-                # # if edge is not used in mongo then update it with small value
-                # if not found:
-                #     weight = 0.0000001   
-                
-                # if edge != None:
-                #     # if edge is used in mongo then update it with real value
-                #     edge[1] = weight # update new weight in edge list
-                #     edge[2].set_weight(weight= weight) # update new weight in edge object
-                #     # url = "/home/onos/Downloads/flaskSDN/topo2.txt"
-                #     # with open(url, "a") as f:
-                #     #     f.write( str(edge) + "\n")
                 if found:
                     edge[1] = weight
                     edge[2].set_weight(weight= weight)

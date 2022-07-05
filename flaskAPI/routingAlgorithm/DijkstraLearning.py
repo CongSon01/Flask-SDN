@@ -63,24 +63,10 @@ class hostServerConnection(object):
             # reset routing
             self.sol.routing()
 
-            # chon server co cost be nhat
-            # current_cost = self.sol.get_minimum_cost()  
-            # if min_cost == 0:
-            #     min_cost = current_cost
-
-            # if min_cost >= current_cost:
-            #     min_cost = current_cost
-            #     # get server co cost be nhat va path den server do
-            #     dest_object = self.servers[server]
-            #     path = self.sol.get_result()
-
+            # Link cost
             current_cost = 0.5 * self.sol.get_minimum_cost() + 0.5 * self.servers[server].get_server_cost()
-            # print("current=", current_cost)
-            # print("cost duong di=", self.sol.get_minimum_cost())
-            # print("cost server=", self.servers[server].get_server_cost())
-            # print("Current cost hien tai=", current_cost, "VOI DEST=", str(server) )
-            # print("tap canh trong so tim thay")
-            # print(self.sol.display_result())
+
+            # LSTM cost
             if min_cost == 0:
                 min_cost = current_cost
 
@@ -90,7 +76,8 @@ class hostServerConnection(object):
                 dest_object = self.servers[server]
                 path = self.sol.get_result()
 
-        print("----------------------------Duong tot nhat----------------------------", self.sol.display_result() )
+        print("----------------------------Duong tot nhat----------------------------" )
+        self.sol.display_result()
         # bat dau goi flow rule 
         # print(path)
         self.add_flow(host_object, dest_object, path)

@@ -1,11 +1,11 @@
-from concurrent.futures import thread
 from flask import Flask, request, jsonify
 
 import sys, json
 import random
+
 PATH_ABSOLUTE = "/home/onos/Downloads/flaskSDN/flaskAPI/"
 IS_RUN_RRBIN = False
-IS_RUN_QLEARNING = True
+# IS_RUN_QLEARNING = True
 
 sys.path.append(PATH_ABSOLUTE+'model')
 sys.path.append(PATH_ABSOLUTE+'handledata/models')
@@ -16,17 +16,10 @@ sys.path.append(PATH_ABSOLUTE+'q_learning')
 
 
 import numpy as np
-# import from handledata/models 
-
-# import from core
 import generate_topo
-
-# import from routingAlgorithm
-import destQueueRabbit, DijkstraLearning, Round_robin, updateServerCost
-# import inside folder
+import DijkstraLearning, Round_robin, updateServerCost, LSTM_Learning
 import ccdn
-import Full_Data
-import time
+import time, Full_Data, LearnWeightModel
 import threading
 import logging
 log = logging.getLogger('werkzeug')
@@ -57,21 +50,22 @@ print("SERVER: ", servers)
 update_server = updateServerCost.updateServerCost(servers)
 update_weight = ccdn.Update_weight_ccdn(topo= topo_network, update_server= update_server, list_ip=list_ip)
 
-if IS_RUN_RRBIN:
-    # print("Doc Queue 1 lan duy nhat")
-    # print(servers)
-    # khoi tao queue co che Round robin
-    queue_rr = destQueueRabbit.destQueueRabbit()
+# if IS_RUN_RRBIN:
+#     # print("Doc Queue 1 lan duy nhat")
+#     # print(servers)
+#     # khoi tao queue co che Round robin
+#     queue_rr = destQueueRabbit.destQueueRabbit()
 
-    # day tap server vao rabbit queue
-    for ip in servers:
-      queue_rr.connectRabbitMQ(ip_dest= ip)
+#     # day tap server vao rabbit queue
+#     for ip in servers:
+#       queue_rr.connectRabbitMQ(ip_dest= ip)
 
 # khoi tao bien CAP NHAP SERVER COST
 # update_server = updateServerCost.updateServerCost(servers)
 
-priority = 350
+priority = 200
 starttime = time.time()
+index_server = 0
       
 @app.route('/getIpServer', methods=['POST'])
 
@@ -84,21 +78,39 @@ def get_ip_server():
     host_ip = request.data
     # print(host_ip)
     global priority 
+    global index_server 
     priority +=10
 
     # chay thuat toan Round Robin 
     if IS_RUN_RRBIN:
-      object = Round_robin.hostServerConnectionRR(queue_rr, topo_network, hosts, servers, priority)
+      if index_server < len(servers):
+        object = Round_robin.hostServerConnectionRR(topo_network, hosts, servers, index_server, priority)
+        # truyen ip xuat phat va lay ra ip server dich den
+        object.set_host_ip(host_ip= str(host_ip))
+        # print("123")
+        dest_ip = object.find_shortest_path()
+        index_server += 1
+      else:
+        index_server = 0
+        # truyen ip xuat phat va lay ra ip server dich den
+        object.set_host_ip(host_ip= str(host_ip))
+        # print("123")
+        dest_ip = object.find_shortest_path()
+        
+      return str(dest_ip)
+      
     # chay thuat toan Dinjkstra
     else:
-      object = DijkstraLearning.hostServerConnection(topo_network, hosts, servers, priority)
+      # object = DijkstraLearning.hostServerConnection(topo_network, hosts, servers, priority)
+      object = LSTM_Learning.hostServerConnection(topo_network, hosts, servers, priority)
+      
 
-    # truyen ip xuat phat va lay ra ip server dich den
-    object.set_host_ip(host_ip= str(host_ip))
-    # print("123")
-    dest_ip = object.find_shortest_path()
+      # truyen ip xuat phat va lay ra ip server dich den
+      object.set_host_ip(host_ip= str(host_ip))
+      # print("123")
+      dest_ip = object.find_shortest_path()
 
-  return str(dest_ip)
+      return str(dest_ip)
 
 
 @app.route('/write_full_data/',  methods=['GET', 'POST']) 
@@ -109,6 +121,19 @@ def write_full_data():
         Full_Data.insert_n_data(json.loads(content)['link_versions'])
         return content
 
+@app.route('/write_learn_weights/',  methods=['GET', 'POST']) 
+def write_learn_weights():
+    if request.method == 'POST':
+        # app.logger.info("Da nhan dc POST")
+        content = request.data
+        for learn_weight in json.loads(content)['learn_weights']:
+          data_search = {'src': learn_weight['src'], 'dst': learn_weight['dst']}
+          if LearnWeightModel.is_data_exit(learn_weight):
+            LearnWeightModel.update_many(data_search, learn_weight)
+          else:
+            LearnWeightModel.insert_data(learn_weight)
+
+        return content
 
 # threading flask api
 def flask_ngu():
@@ -180,8 +205,8 @@ def change_acction(x, r, w):
 ## fix cung R, W
 def ccdn():
     global starttime
-    R = 4
-    W = 1
+    R = 0
+    W = 0
     while True:
         if time.time() - starttime > 60:
             RD, WD, V_staleness = update_weight.load_CCDN(R, W)
@@ -194,6 +219,6 @@ def ccdn():
 
 if __name__ == '__main__':
     threading.Thread(target=flask_ngu).start()
-    threading.Thread(target=ccdn).start()
+    # threading.Thread(target=ccdn).start()
 
 # cmt dong 192 va 194 de chay round robin

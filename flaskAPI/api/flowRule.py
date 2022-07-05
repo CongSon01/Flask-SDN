@@ -250,7 +250,6 @@ class flowRule(object):
             flows_value = self.get_flow_of_controller(data_raw, list_sw)
             if controllers[i]['controller'] == "onos":
                 print("Add flow cho onos")
-                print(flows_value)
                 url_post = "http://"+ controllers[i]["ip"] + ":8181/onos/v1/flows?appId=onos.onosproject.routing"
                 response = requests.post(url_post, params=query,auth=HTTPBasicAuth('onos', 'rocks'), data = json.dumps(flows_value), headers=  headers )
                 print("Add flow may "+str(controllers[i]['ip']) +" : "+ str(response))

@@ -150,6 +150,6 @@ from requests.auth import HTTPBasicAuth
 #         lists_tmp.append("s" + str(sw + 1))
 #     print(lists_tmp)
 
-import run_final
-net = run_final.get_net()
-hosts_save = run_final.get_hosts_save()
+# import run_final
+# net = run_final.get_net()
+# hosts_save = run_final.get_hosts_save()

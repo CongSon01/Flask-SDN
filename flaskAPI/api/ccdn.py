@@ -23,7 +23,7 @@ class Update_weight_ccdn(object):
         self.count = 0
         self.topo = topo
         self.update_server = update_server
-        self.list_ip = list_ip
+        self.list_ip =  [sdn['ip'] for sdn in list_ip]
         self.q_table = q_table.Q_table()
         self.time_run = 60*60*5 # 60ph
         self.start_run = time.time()
@@ -32,7 +32,7 @@ class Update_weight_ccdn(object):
         self.count += 1
         time_current = int(time.time() - self.start_run)
         print("GHI tai gay thu : ", time_current)
-        data_insert = {'R':18, 'W':1,  'read_delay':read_delay, 
+        data_insert = {'R':R, 'W':W,  'read_delay':read_delay, 
                 'write_delay':write_delay, 'time_staleness':time_staleness, 'version_staleness':version_staleness, 'time': time_current
                 ,'overhead': avg_overhead}
 
@@ -79,7 +79,7 @@ class Update_weight_ccdn(object):
                 link_object = json.loads(response.text)
                 link_versions.extend(link_object['link_versions'])
             except:
-                print("GOI API R LOI")
+                print("GOI API R LOI ", ip)
         return link_versions
     
     def write_W_SDN(self, W):
@@ -90,7 +90,7 @@ class Update_weight_ccdn(object):
                 url = "http://" + ip + ":5000/write_W_SDN/"
                 repo = requests.post(url, data=str(W))
             except:
-                print("GOI API W LOI")
+                print("GOI API W LOI " , ip)
             list_time_write.append( time.time() - time_start_write )
             time_start_write = time.time()
         return int(average(list_time_write) * 1000)

@@ -1,4 +1,7 @@
 import heapq
+import sys
+sys.path.append('/home/onos/Downloads/flaskSDN/flaskAPI/model')
+import LearnWeightModel
 
 class Dijkstra(object):
     """Dijktra shortest path algorithm"""
@@ -21,6 +24,8 @@ class Dijkstra(object):
        self.minimum_cost = 0
        self.result = [] # tap cac canh di tu start den end
        self.heap = []
+       self.number_switch = 0  # so luong switch khi chon duong di do
+       self.number_label_1 = 0
 
        self.routing_preparation()
 
@@ -41,6 +46,9 @@ class Dijkstra(object):
 
     def get_minimum_cost(self):
         return self.minimum_cost
+    
+    def get_number_switch(self):
+        return self.number_switch
 
     def routing_preparation(self):
        # neu tap ket qua luu lai duong di cu thi reset lai
@@ -76,23 +84,29 @@ class Dijkstra(object):
                 # backtrack to save shortest path
                 self.save_result()
                 return 
-                
+            
+            # print("Danh sach cac canh: ", self.edges[u])
+            # u la src, v la dst
             for v, c, edge_address in self.edges[u]:
+                label = self.get_label_from_mongo(src=u.get_id(), dst=v.get_id())
                 #print("vertex", v, "cost", v)
                 if v not in visited and current_cost + c < self.distance[v]:
+                    self.number_label_1 += int(label)
                     next = current_cost + c
                     self.path[v] = u  # parent of v is u
                     self.distance[v] = next # update new distance
                     heapq.heappush(self.heap, (next, v))
         return -1
   
+    def get_label_from_mongo(self, src, dst):
+        return LearnWeightModel.get_label(src, dst)
+
     def save_result(self):
         current = self.end
         
         while current != self.start:
-            # print("current", current)
+            
             parent = self.path[current]
-            # print("parent cua current =", parent)
             edge_object = self.topo.find_edge(src= parent, dest = current)
 
             weight = edge_object[1] # access weight in list
@@ -105,6 +119,5 @@ class Dijkstra(object):
     def display_result(self):
         for e in self.result:
             print("from", e.get_src().get_id(), "->", e.get_dest().get_id(), 
-                    " = ", e.get_weight() )
-        return "OK"
-
+                    " = ", e.get_weight())
+        # return "OK"

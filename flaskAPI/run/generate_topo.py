@@ -151,7 +151,11 @@ def run_shedule(generate_flow, net, life_time):
         current_time = int(time.time() - start_time)
         if ( current_time >=  min(full_times) ):
             try:
-                p = net.get(get_host_affter_time(full_values, current_time))
+                try: 
+                    p = net.get(get_host_affter_time(full_values, current_time))
+                except:
+                    p = net.get('h3')
+                
                 print("HOST: ", p, " Chay luc ", current_time)
                 des = call_routing_api_flask( p.IP() )
                 # des = "10.0.0.4"
