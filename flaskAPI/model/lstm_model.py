@@ -6,7 +6,7 @@ import joblib
 
 class lstm_model():
     def __init__(self):
-        self.model = self.load_model("/home/onos/Downloads/flask_SDN/Flask-SDN/flaskAPI/model/lstm200.hdf5")
+        self.model = self.load_model("home/onos/Downloads/flask_SDN/lstmlocal.hdf5")
         self.scaler = joblib.load('/home/onos/Downloads/flask_SDN/Flask-SDN/flaskAPI/model/scaler.save')
         # return self._model()
     
