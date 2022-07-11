@@ -66,7 +66,7 @@ class lstmWeight():
                 Lstm.update_many(data_search, temp_data)
             else:
                 Lstm.insert_data(data=temp_data)
-                if self.is_write_ccdn == True:
+                if self.is_write_ccdn == "True":
                     url_ccdn = "http://" + self.ip_ccdn + ":5000/write_full_data/"
                     requests.post(url_ccdn, data=json.dumps({'link_versions': temp_data}))
             # print("Ghi vao local may nay thanh cong")
