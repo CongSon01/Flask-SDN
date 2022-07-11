@@ -1,13 +1,15 @@
 
 import sys, json, random
+import requests
 sys.path.append('/home/onos/Downloads/flask_SDN/Flask-SDN/flaskAPI/dataBaseMongo')
 import Lstm
 class lstmWeight():
     def __init__(self):
-        self.ip_local = str(json.load(open('/home/onos/Downloads/flask_SDN/Flask-SDN/config.json'))['ip_local'])
-        self.ip_remote = json.load(open('/home/onos/Downloads/flask_SDN/Flask-SDN/config.json'))['ip_remote']
-        self.ip_ccdn =  str(json.load(open('/home/onos/Downloads/flask_SDN/Flask-SDN/config.json'))['ip_ccdn'])
-        self.thread_overhead =  float(json.load(open('/home/onos/Downloads/flask_SDN/Flask-SDN/config.json'))['thread_overhead'])
+        self.ip_local = str(json.load(open('/home/onos/Downloads/flask_SDN/config.json'))['ip_local'])
+        self.is_write_ccdn = str(json.load(open('/home/onos/Downloads/flask_SDN/config.json'))['is_write_ccdn'])
+        self.ip_remote = json.load(open('/home/onos/Downloads/flask_SDN/config.json'))['ip_remote']
+        self.ip_ccdn =  str(json.load(open('/home/onos/Downloads/flask_SDN/config.json'))['ip_ccdn'])
+        self.thread_overhead =  float(json.load(open('/home/onos/Downloads/flask_SDN/config.json'))['thread_overhead'])
 
     convert_delay = lambda self, delay, delay_min, delay_max: 1 if delay_min < delay < delay_max  else 0
     
@@ -64,6 +66,9 @@ class lstmWeight():
                 Lstm.update_many(data_search, temp_data)
             else:
                 Lstm.insert_data(data=temp_data)
+                if self.is_write_ccdn == True:
+                    url_ccdn = "http://" + self.ip_ccdn + ":5000/write_full_data/"
+                    requests.post(url_ccdn, data=json.dumps({'link_versions': temp_data}))
             # print("Ghi vao local may nay thanh cong")
         except:
             print("--------------- Write LSTM loi")

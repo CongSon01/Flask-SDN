@@ -32,7 +32,7 @@ log.setLevel(logging.ERROR)
 # Init app
 app = Flask(__name__)
 
-ip_ccdn = str(json.load(open('/home/onos/Downloads/flask_SDN/Flask-SDN/config.json'))['ip_ccdn'])
+ip_ccdn = str(json.load(open('/home/onos/Downloads/flask_SDN/config.json'))['ip_ccdn'])
 update = updateWeight.updateWeight()
 
 _learnWeight = learnWeight.learnWeight()
@@ -82,13 +82,13 @@ def write_data():
             # consume data from rabbit
             # update.read_params_from_rabbit()
             # Update QoS parameter and save to local database   (using linkcost)
-            # update.write_update_link_to_data_base()
+            update.write_update_link_to_data_base()
 
             # update label (good/bad) from QoS parameters (using lstm)
             _learnWeight.get_learn_weight(dicdata=dicdata)
 
             # Tao dataset
-            # lstmWeight.lstmWeight().create_lstm_data(dicdata)
+            lstmWeight.lstmWeight().create_lstm_data(dicdata)
             try:
                 # upload link learn to ccdn database
                 write_ccdn()
@@ -171,5 +171,5 @@ def read_learn_link():
 
 
 if __name__ == '__main__':
-    ip_local = str(json.load(open(PATH_ABSOLUTE+'/config.json'))['ip_local'])
+    ip_local = str(json.load(open('/home/onos/Downloads/flask_SDN/config.json'))['ip_local'])
     app.run(host=ip_local, debug=True, use_reloader=False)
