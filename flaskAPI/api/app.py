@@ -59,10 +59,10 @@ def write_data():
 
     if request.method == 'POST':
         # app.logger.info("Da nhan dc POST")
-        content = request.data
+        content = request.data.decode("utf-8") 
         dicdata = {}
         datas = content.split("&")
-
+        # print(datas)
         # processing data
         for data in datas:
             d = data.split(":")
@@ -91,7 +91,7 @@ def write_data():
             # lstmWeight.lstmWeight().create_lstm_data(dicdata)
             try:
                 # upload link learn to ccdn database
-                # write_ccdn()
+                write_ccdn()
                 write_learn_weights_ccdn()
             except:
                 print("GHI VAO CCDN LOI ~ NHO MONGOD")
@@ -107,9 +107,9 @@ def write_ccdn():
 
 def write_learn_weights_ccdn():
     # Get data from local and upload to ccdn database
-    data = LinkVersion.get_multiple_data()
+    data = LearnWeightModel.get_multiple_data()
     url_ccdn = "http://" + ip_ccdn + ":5000/write_learn_weights/"
-    requests.post(url_ccdn, data=json.dumps({'learn_weight': data}))
+    requests.post(url_ccdn, data=json.dumps({'learn_weights': data}))
     return 
 
 # @app.route('/write_W_SDN/',  methods=['GET', 'POST'])

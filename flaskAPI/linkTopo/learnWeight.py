@@ -23,7 +23,7 @@ class learnWeight():
         # update QoS from SINA data and insert into batabase (dataset)
         src = dicdata['src']
         dst = dicdata['dst']
-        delay = dicdata['delay']
+        delay = float(dicdata['delay'])
         linkUtilization = float(dicdata['linkUtilization']) if float(dicdata['linkUtilization']) == 1.0 else random.uniform(0, 0.7)
         packetLoss = float(dicdata['packetLoss']) if float(dicdata['packetLoss']) == 1.0 and float(dicdata['packetLoss']) == 0.0 else random.uniform(0.02, 0.26)
         byteSent = float(dicdata['byteSent']) 
