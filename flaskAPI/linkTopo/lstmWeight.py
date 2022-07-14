@@ -1,6 +1,7 @@
 
 import sys, json, random
 import requests
+from bson import json_util
 sys.path.append('/home/onos/Downloads/flask_SDN/Flask-SDN/flaskAPI/dataBaseMongo')
 import Lstm
 class lstmWeight():
@@ -40,7 +41,7 @@ class lstmWeight():
         # update QoS from SINA data and insert into batabase (dataset)
         src = dicdata['src']
         dst = dicdata['dst']
-        delay = dicdata['delay']
+        delay = float(dicdata['delay'])
         linkUtilization = float(dicdata['linkUtilization']) if float(dicdata['linkUtilization']) == 1.0 else random.uniform(0, 0.7)
         packetLoss = float(dicdata['packetLoss']) 
         byteSent = float(dicdata['byteSent']) 
@@ -68,7 +69,8 @@ class lstmWeight():
                 Lstm.insert_data(data=temp_data)
                 if self.is_write_ccdn == "True":
                     url_ccdn = "http://" + self.ip_ccdn + ":5000/write_full_data/"
-                    requests.post(url_ccdn, data=json.dumps({'link_versions': temp_data}))
+                    # page_sanitized = json.loads(json.dumps(temp_data))
+                    requests.post(url_ccdn, data=json_util.dumps(temp_data))
             # print("Ghi vao local may nay thanh cong")
         except:
             print("--------------- Write LSTM loi")

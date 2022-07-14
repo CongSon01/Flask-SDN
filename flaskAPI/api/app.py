@@ -75,7 +75,7 @@ def write_data():
         #  remove default data
         check_overhead = (float(dicdata['byteSent']) + float(dicdata['byteReceived']))
         
-        if check_overhead > 15000000:
+        if check_overhead > 0:
             print("****************** Cap nhat du lieu ******************")
             # push data to rabbit (mechanism pub/sub)
             pub.connectRabbitMQ(data=dicdata)
@@ -85,13 +85,14 @@ def write_data():
             update.write_update_link_to_data_base()
 
             # update label (good/bad) from QoS parameters (using lstm)
-            _learnWeight.get_learn_weight(dicdata=dicdata)
+            # _learnWeight.get_learn_weight(dicdata=dicdata)
 
             # Tao dataset
+            print(dicdata)
             lstmWeight.lstmWeight().create_lstm_data(dicdata)
             try:
                 # upload link learn to ccdn database
-                write_ccdn()
+                # write_ccdn()
                 write_learn_weights_ccdn()
             except:
                 print("GHI VAO CCDN LOI ~ NHO MONGOD")
