@@ -73,6 +73,8 @@ def write_data():
                 dicdata[d[0]] = d[1]
 
         #  remove default data
+        dicdata['byteReceived'] += 1000000
+        dicdata['byteSent'] += 1000000
         check_overhead = (float(dicdata['byteSent']) + float(dicdata['byteReceived']))
         
         if check_overhead > 15000000:
