@@ -75,7 +75,7 @@ def write_data():
         #  remove default data
         check_overhead = (float(dicdata['byteSent']) + float(dicdata['byteReceived']))
         
-        if check_overhead > 0:
+        if check_overhead > 15000000:
             print("****************** Cap nhat du lieu ******************")
             # push data to rabbit (mechanism pub/sub)
             pub.connectRabbitMQ(data=dicdata)
@@ -88,7 +88,6 @@ def write_data():
             # _learnWeight.get_learn_weight(dicdata=dicdata)
 
             # Tao dataset
-            print(dicdata)
             lstmWeight.lstmWeight().create_lstm_data(dicdata)
             try:
                 # upload link learn to ccdn database
