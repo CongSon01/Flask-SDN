@@ -148,8 +148,7 @@ def write_learn_weights():
             data_search = {
                 'src': learn_weight['src'], 'dst': learn_weight['dst']}
             if LearnWeightModel.is_data_exit(learn_weight):
-                LearnWeightModel.update_many(data_search, 
-				)
+                LearnWeightModel.update_many(data_search, learn_weight)
             else:
                 LearnWeightModel.insert_data(learn_weight)
 

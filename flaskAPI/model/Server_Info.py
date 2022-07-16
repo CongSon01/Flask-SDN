@@ -23,7 +23,7 @@ def insert_data(data):
     return
 
 def update_many(data_search, data_update):
-    collection.update_many(data_search, {'$set': data_update})
+    collection.update_many({'server_ip': data_search}, {'$set': data_update})
     return 
 
 def insert_n_data(list_data):
