@@ -1,7 +1,7 @@
 { 
-  "hosts": ["h1","h2"],  
+  "hosts": ["h1","h2", "h60"],
 
-  "servers": [ "h3", "h4", "h60", "h5"],
+  "servers": [ "h3", "h4", "h5"],
 
   "name_topo":"VtlWavenet2011",
 
@@ -10,6 +10,7 @@
   "bridges": [],
 
   "controllers": [
-      {"ip":"10.20.0.200", "controller": "onos","controller_port": 6653, "rest_port": 8181, "switches" : ["s1", "s2", "s3", "s60", "s4", "s5"]}
+      {"ip":"10.20.0.200", "controller": "onos","controller_port": 6653, "rest_port": 8181,
+      "switches" : ["s1", "s2", "s3", "s60", "s4", "s5"]}
   ]
 }

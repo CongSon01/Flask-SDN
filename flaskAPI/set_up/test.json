@@ -1,0 +1,22 @@
+{ 
+  "hosts": ["h1","h60", "h7", "h61", "h68", "h9", "h77", "h79"],
+
+  "servers": [ "h3", "h4", "h63", "h65"],
+
+  "name_topo":"VtlWavenet2011",
+
+  "controller_type": "remote",
+
+  "bridges": [["s5", "s6"], ["s2","s78"], ["s8", "s64"]],
+
+  "controllers": [
+      {"ip":"10.20.0.200", "controller": "onos","controller_port": 6653, "rest_port": 8181,
+      "switches" : ["s1", "s2", "s3", "s60", "s4", "s5"]},
+      {"ip":"10.20.0.206", "controller": "onos","controller_port": 6653, "rest_port": 8181,
+      "switches" : ["s6", "s7", "s62", "s61", "s63", "s8"]},
+      {"ip":"10.20.0.207", "controller": "onos","controller_port": 6653, "rest_port": 8181, 
+      "switches" : ["s41", "s64", "s9", "s65", "s10"]},
+      {"ip":"10.20.0.208", "controller": "onos","controller_port": 6653, "rest_port": 8181, 
+      "switches" : ["s23", "s77", "s22", "s78", "s79", "s21"]}
+  ]
+}

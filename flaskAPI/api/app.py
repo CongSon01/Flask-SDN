@@ -1,7 +1,9 @@
+from json import encoder
 from flask import Flask, request, jsonify
 
 import sys, json
-import random
+from bson import json_util
+import ast
 
 PATH_ABSOLUTE = "/home/onos/Downloads/flaskSDN/flaskAPI/"
 IS_RUN_RRBIN = False
@@ -28,7 +30,8 @@ log.setLevel(logging.ERROR)
 app = Flask(__name__)
 
 # get full ip of SDN
-list_ip = json.load(open('/home/onos/Downloads/flaskSDN/flaskAPI/set_up/set_up_topo.json'))["controllers"]
+list_ip = json.load(open(
+    '/home/onos/Downloads/flaskSDN/flaskAPI/set_up/set_up_topo.json'))["controllers"]
 
 number_ip = len(list_ip) + 1
 
@@ -40,7 +43,7 @@ topo_network = generate_topo_info.get_topo_from_api()
 graph = generate_topo_info.get_graph_from_api()
 
 # get tap host va server tronng topo
-hosts   = generate_topo_info.get_host_from_api()
+hosts = generate_topo_info.get_host_from_api()
 servers = generate_topo_info.get_server_from_api()
 
 print("HOSTS: ", hosts)
@@ -48,7 +51,8 @@ print("HOSTS: ", hosts)
 print("SERVER: ", servers)
 ############################ CCDN ###############################
 update_server = updateServerCost.updateServerCost(servers)
-update_weight = ccdn.Update_weight_ccdn(topo= topo_network, update_server= update_server, list_ip=list_ip)
+update_weight = ccdn.Update_weight_ccdn(
+    topo=topo_network, update_server=update_server, list_ip=list_ip)
 
 # if IS_RUN_RRBIN:
 #     # print("Doc Queue 1 lan duy nhat")
@@ -66,78 +70,97 @@ update_weight = ccdn.Update_weight_ccdn(topo= topo_network, update_server= updat
 priority = 200
 starttime = time.time()
 index_server = 0
-      
+
+
 @app.route('/getIpServer', methods=['POST'])
-
 def get_ip_server():
-  """
-    input: ip_host
-    output: ip_server
-  """
-  if request.method == 'POST':
-    host_ip = request.data
-    # print(host_ip)
-    global priority 
-    global index_server 
-    priority +=10
+    """
+      input: ip_host
+      output: ip_server
+    """
+    if request.method == 'POST':
+        host_ip = request.data
+        # print(host_ip)
+        global priority
+        global index_server
+        priority += 10
 
-    # chay thuat toan Round Robin 
-    if IS_RUN_RRBIN:
-      if index_server < len(servers):
-        object = Round_robin.hostServerConnectionRR(topo_network, hosts, servers, index_server, priority)
-        # truyen ip xuat phat va lay ra ip server dich den
-        object.set_host_ip(host_ip= str(host_ip))
-        # print("123")
-        dest_ip = object.find_shortest_path()
-        index_server += 1
-      else:
-        index_server = 0
-        # truyen ip xuat phat va lay ra ip server dich den
-        object.set_host_ip(host_ip= str(host_ip))
-        # print("123")
-        dest_ip = object.find_shortest_path()
-        
-      return str(dest_ip)
-      
-    # chay thuat toan Dinjkstra
-    else:
-      # object = DijkstraLearning.hostServerConnection(topo_network, hosts, servers, priority)
-      object = LSTM_Learning.hostServerConnection(topo_network, hosts, servers, priority)
-      
+        # chay thuat toan Round Robin
+        if IS_RUN_RRBIN:
+            if index_server < len(servers):
+                object = Round_robin.hostServerConnectionRR(
+                    topo_network, hosts, servers, index_server, priority)
+                # truyen ip xuat phat va lay ra ip server dich den
+                object.set_host_ip(host_ip=str(host_ip))
+                # print("123")
+                dest_ip = object.find_shortest_path()
+                index_server += 1
+            else:
+                index_server = 0
+                # truyen ip xuat phat va lay ra ip server dich den
+                object.set_host_ip(host_ip=str(host_ip))
+                # print("123")
+                dest_ip = object.find_shortest_path()
 
-      # truyen ip xuat phat va lay ra ip server dich den
-      object.set_host_ip(host_ip= str(host_ip))
-      # print("123")
-      dest_ip = object.find_shortest_path()
+            return str(dest_ip)
 
-      return str(dest_ip)
+        # chay thuat toan Dinjkstra
+        else:
+            # object = DijkstraLearning.hostServerConnection(topo_network, hosts, servers, priority)
+            object = LSTM_Learning.hostServerConnection(
+                topo_network, hosts, servers, priority)
+
+            # truyen ip xuat phat va lay ra ip server dich den
+            object.set_host_ip(host_ip=str(host_ip))
+            # print("123")
+            dest_ip = object.find_shortest_path()
+
+            return str(dest_ip)
 
 
-@app.route('/write_full_data/',  methods=['GET', 'POST']) 
+def deunicodify_hook(pairs):
+    new_pairs = []
+    for key, value in pairs:
+        if isinstance(value, unicode):
+            value = value.encode('utf-8')
+        if isinstance(key, unicode):
+            key = key.encode('utf-8')
+        new_pairs.append((key, value))
+    return dict(new_pairs)
+
+
+@app.route('/write_full_data/',  methods=['GET', 'POST'])
 def write_full_data():
     if request.method == 'POST':
-        # app.logger.info("Da nhan dc POST")
         content = request.data
-        Full_Data.insert_n_data(json.loads(content)['link_versions'])
+        data = json.loads(content,  object_pairs_hook=deunicodify_hook)
+        del data["_id"]
+        Full_Data.insert_n_data([data])
         return content
 
-@app.route('/write_learn_weights/',  methods=['GET', 'POST']) 
+
+@app.route('/write_learn_weights/',  methods=['GET', 'POST'])
 def write_learn_weights():
     if request.method == 'POST':
         # app.logger.info("Da nhan dc POST")
         content = request.data
         for learn_weight in json.loads(content)['learn_weights']:
-          data_search = {'src': learn_weight['src'], 'dst': learn_weight['dst']}
-          if LearnWeightModel.is_data_exit(learn_weight):
-            LearnWeightModel.update_many(data_search, learn_weight)
-          else:
-            LearnWeightModel.insert_data(learn_weight)
+            data_search = {
+                'src': learn_weight['src'], 'dst': learn_weight['dst']}
+            if LearnWeightModel.is_data_exit(learn_weight):
+                LearnWeightModel.update_many(data_search, 
+				)
+            else:
+                LearnWeightModel.insert_data(learn_weight)
 
         return content
 
 # threading flask api
+
+
 def flask_ngu():
-  app.run(host='10.20.0.201',debug=True, use_reloader=False, threaded=True)
+    app.run(host='10.20.0.201', debug=True, use_reloader=False, threaded=True)
+
 
 def get_x(x):
     if (x >= number_ip-1):
@@ -146,6 +169,7 @@ def get_x(x):
         return 1
     else:
         return x
+
 
 def change_acction(x, r, w):
     # print(r, w)
@@ -160,8 +184,6 @@ def change_acction(x, r, w):
         7: (get_x(r + 1), get_x(w)),
         8: (get_x(r + 1), get_x(w + 1)),
     }[x]
-
-
 
 
 # threading ccdn
@@ -191,18 +213,18 @@ def change_acction(x, r, w):
 #                   R = random.randint(4, 7)
 #                   W = random.randint(4, 7)
 #             RD, WD, V_staleness = update_weight.load_CCDN(R, W)
-            
+
 #             new_state, reward, done = env.step(RD, WD, V_staleness)
 
 #             # cap nhap trong so cho server
 #             update_server.update_server_cost()
 #             starttime = time.time()
-                
+
 #             if done:
 #                 break
 #             state = new_state
 
-## fix cung R, W
+# fix cung R, W
 def ccdn():
     global starttime
     R = 0
@@ -214,8 +236,7 @@ def ccdn():
             # cap nhap trong so cho server
             # update_server.update_server_cost()
             starttime = time.time()
-          
-            
+
 
 if __name__ == '__main__':
     threading.Thread(target=flask_ngu).start()

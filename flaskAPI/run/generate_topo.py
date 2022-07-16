@@ -102,7 +102,8 @@ def generate_topo(net, hosts_save):
     # read file server and write to mongo
     for ip_server in list_ip_server:
         print("Ip server =", ip_server)
-        cmd_read_log = 'python readlog.py'+' '+ip_server + ' &'
+        # cmd_read_log = 'python readlog.py'+' '+ip_server + ' &'
+        cmd_read_log = 'python readServerLog.py'+' '+ip_server + ' &'
         os.system(cmd_read_log)
         time.sleep(2)
 
@@ -162,10 +163,14 @@ def run_shedule(generate_flow, net, life_time):
                 print("TRUYEN DU LIEU ", p.IP(), "--->", des)
                 # rate = random.randint(20000000, 60000000) #20^6 - 60*10^6 = 20Mb -> 60Mb
                 # phan tram chiem dung bang thong
-                rate = np.random.uniform(set_up_mininet.MIN_IPERF, set_up_mininet.MAX_IPERF) #20^6 - 60*10^6 = 20Mb -> 60Mb
+                # rate = np.random.uniform(set_up_mininet.MIN_IPERF, set_up_mininet.MAX_IPERF) #20^6 - 60*10^6 = 20Mb -> 60Mb
+                # print("------------- gui du lieu-----------", rate)
+                # plc_cmd =  'iperf -c %s -b %d -u -p 1337 -t %d &' %(des, rate, life_time)
+                # p.cmd(plc_cmd)   
+                rate =  set_up_mininet.FILE_SIZE
                 print("------------- gui du lieu-----------", rate)
-                plc_cmd =  'iperf -c %s -b %d -u -p 1337 -t %d &' %(des, rate, life_time)
-                p.cmd(plc_cmd)   
+                plc_cmd = 'source /home/onos/Downloads/flaskSDN/flaskAPI/get_reponding_time/venv/bin/activate; python /home/onos/Downloads/flaskSDN/flaskAPI/get_reponding_time/cli-client.py %s -m b -p -s %d -srt >> ./server_info/%s.txt &' %(des, rate, des)
+                p.cmd(plc_cmd)  
 
                 full_times.remove(min(full_times))
             except:
@@ -196,8 +201,13 @@ def start_server(set_server, net):
         p=net.get(str(server))
 
         # chay background nhan iperf
-        background_get_iperf_cmd = 'iperf -s -u -p 1337 -i 1 > ./BW_server/%s.txt &' %server.IP()
-        p.cmd(background_get_iperf_cmd)
+        # background_get_iperf_cmd = 'iperf -s -u -p 1337 -i 1 > ./BW_server/%s.txt &' %server.IP()
+        # p.cmd(background_get_iperf_cmd)
+        
+        # chay background nhan http server
+        background_get_http_cmd = 'source /home/onos/Downloads/flaskSDN/flaskAPI/get_reponding_time/venv/bin/activate;python /home/onos/Downloads/flaskSDN/flaskAPI/get_reponding_time/http-fastapi-server.py &'
+        p.cmd(background_get_http_cmd)
+
 
 
 def write_table_to_file(table, name_file):

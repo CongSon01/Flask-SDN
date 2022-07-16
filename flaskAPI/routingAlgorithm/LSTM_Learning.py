@@ -79,7 +79,7 @@ class hostServerConnection(object):
             #     path = self.sol.get_result()
 
             ## Dieu kien khi chay LSTM
-            weight_temp = self.sol.number_label_1 + len(self.sol.get_result())
+            weight_temp = self.sol.number_label_1 + len(self.sol.get_result()) # so nhan 1 + so node
             if min_weight == 0:
                 min_weight = weight_temp
             if min_weight >= weight_temp:
