@@ -87,19 +87,28 @@ class updateWeight(object):
             packet_loss = weight[2] if weight[1] == 1.0 and weight[1] == 0.0 else random.uniform(0.02, 0.26)
             byte_sent = weight[3]
             byte_received = weight[4]
-            overhead = abs((byte_sent + byte_received)) / 1000000 + 10# convert to MB
+            overhead = (byte_sent + byte_received) / 1000000 + 20 # convert to MB 
+            if (overhead > 35):
+                ratio_overhead = (overhead - 35)/35
+            else:
+                ratio_overhead = 0
+            
+            label = self.get_label(delay, link_utilization, packet_loss, ratio_overhead)
 
             temp_data = {"src": src,
-                         "dst": dst,
-                         "delay": float(delay),
-                         "linkUtilization": float(link_utilization),
-                         "packetLoss": float(packet_loss),
-                         "linkVersion": self.link_version,
-                         "IpSDN": self.ip_local,
-                         "overhead": float(overhead),
-                         "byteSent": float(byte_sent),
-                         "byteReceived": float(byte_received)
-                         }
+                        "dst": dst,
+                        "delay": float(delay),
+                        "linkUtilization": float(link_utilization),
+                        "packetLoss": float(packet_loss),
+                        "IpSDN": self.ip_local,
+                        "overhead": float(overhead),
+                        "ratio_overhead": float(ratio_overhead),
+                        "byteSent": float(byte_sent),
+                        "byteReceived": float(byte_received),
+                        "label": label,
+                        }
+            print("DATA NEW: ")
+            print(temp_data)
             try:
                 data_search = { 'src': temp_data['src'], 'dst': temp_data['dst'] }
                 print("INSERT LINK VERSION")

@@ -33,7 +33,7 @@ class lstmWeight():
         # p_packetLoss = self.convert_packetLoss(packetLoss=packetLoss, packetLoss_min=0.0, packetLoss_max=0.22)
 
         # p_linkVersion = self.convert_linkVersion(linkVersion=linkVersion, linkVersion_min=0, linkVersion_max=1)
-        p_overhead = self.convert_overhead(overhead=overhead, overhead_max=40)
+        p_overhead = self.convert_overhead(overhead=overhead, overhead_max=0.35)
         kq = p_delay + p_linkUtilization + packetLoss  + p_overhead
         return 1 if kq >= 3 else 0
 
@@ -41,13 +41,19 @@ class lstmWeight():
         # update QoS from SINA data and insert into batabase (dataset)
         src = dicdata['src']
         dst = dicdata['dst']
-        delay = float(dicdata['delay'])
-        linkUtilization = float(dicdata['linkUtilization']) if float(dicdata['linkUtilization']) == 1.0 else random.uniform(0, 0.7)
+        delay = float(dicdata['delay']) # nano/s
+        # linkUtilization = float(dicdata['linkUtilization']) if float(dicdata['linkUtilization']) == 1.0 else random.uniform(0, 0.7)
+        linkUtilization = float(dicdata['linkUtilization'])
         packetLoss = float(dicdata['packetLoss']) 
         byteSent = float(dicdata['byteSent']) 
         byteReceived = float(dicdata['byteReceived'])
-        overhead = (byteSent + byteReceived) / 1000000 + 10 # convert to MB
-        label = self.get_label(delay, linkUtilization, packetLoss, overhead)
+        overhead =  ( byteSent + byteReceived  ) / 1000000  # convert byte/s => Mb/s
+        if (overhead > 35):
+            ratio_overhead = (overhead - 35)/35
+        else:
+            ratio_overhead = 0
+        
+        label = self.get_label(delay, linkUtilization, packetLoss, ratio_overhead)
 
         temp_data = {"src": src,
                      "dst": dst,
@@ -56,10 +62,13 @@ class lstmWeight():
                      "packetLoss": float(packetLoss),
                      "IpSDN": self.ip_local,
                      "overhead": float(overhead),
+                     "ratio_overhead": float(ratio_overhead),
                      "byteSent": float(byteSent),
                      "byteReceived": float(byteReceived),
                      "label": label,
                      }
+        print("DATA NEW: ")
+        print(temp_data)
         try:
             data_search = {'overhead': temp_data['overhead']}
             print('INSERT LSTM')

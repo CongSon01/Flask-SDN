@@ -73,11 +73,13 @@ def write_data():
                 dicdata[d[0]] = d[1]
 
         #  remove default data
-        dicdata['byteReceived'] += 1000000
-        dicdata['byteSent'] += 1000000
+        dicdata['byteReceived'] = float(dicdata['byteReceived']) 
+        dicdata['byteSent'] = float(dicdata['byteSent']) 
         check_overhead = (float(dicdata['byteSent']) + float(dicdata['byteReceived']))
-        
-        if check_overhead > 15000000:
+        # print("DATA RAW: ")
+        # print(dicdata)
+        threshold = 20 * 10**6 / 8 # nguong Mbit => byte
+        if check_overhead > threshold:
             print("****************** Cap nhat du lieu ******************")
             # push data to rabbit (mechanism pub/sub)
             pub.connectRabbitMQ(data=dicdata)
@@ -87,7 +89,7 @@ def write_data():
             update.write_update_link_to_data_base()
 
             # update label (good/bad) from QoS parameters (using lstm)
-            # _learnWeight.get_learn_weight(dicdata=dicdata)
+            _learnWeight.get_learn_weight(dicdata=dicdata)
 
             # Tao dataset
             lstmWeight.lstmWeight().create_lstm_data(dicdata)
