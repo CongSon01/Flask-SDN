@@ -73,12 +73,13 @@ def write_data():
                 dicdata[d[0]] = d[1]
 
         #  remove default data
-        dicdata['byteReceived'] = float(dicdata['byteReceived'])
-        dicdata['byteSent'] = float(dicdata['byteSent']) 
+        # dicdata['byteReceived'] = float(dicdata['byteReceived'])
+        # dicdata['byteSent'] = float(dicdata['byteSent']) 
         check_overhead = (float(dicdata['byteSent']) + float(dicdata['byteReceived']))
+        dicdata['overhead'] =( float(dicdata['byteReceived']) + float(dicdata['byteSent'])  ) / (8 * 10**6)  # nguong Mbit => byte
         # print("DATA RAW: ")
         # print(dicdata)
-        threshold = 20 * 10**6 / 8 # nguong Mbit => byte
+        threshold = 20 
         if check_overhead > threshold:
             print("****************** Cap nhat du lieu ******************")
             # push data to rabbit (mechanism pub/sub)

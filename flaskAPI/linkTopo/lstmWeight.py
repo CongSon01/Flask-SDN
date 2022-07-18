@@ -47,7 +47,7 @@ class lstmWeight():
         packetLoss = float(dicdata['packetLoss']) 
         byteSent = float(dicdata['byteSent']) 
         byteReceived = float(dicdata['byteReceived'])
-        overhead =  ( byteSent + byteReceived  ) / (10**6)  # convert byte/s => Mb/s
+        overhead =  float(dicdata['overhead'])  # convert byte/s => Mb/s
         if (overhead > 35):
             ratio_overhead = (overhead - 35)/35
         else:
