@@ -82,23 +82,23 @@ def write_data():
         if check_overhead > threshold:
             print("****************** Cap nhat du lieu ******************")
             # push data to rabbit (mechanism pub/sub)
-            pub.connectRabbitMQ(data=dicdata)
+            # pub.connectRabbitMQ(data=dicdata)
             # consume data from rabbit
             # update.read_params_from_rabbit()
             # Update QoS parameter and save to local database   (using linkcost)
-            update.write_update_link_to_data_base()
+            # update.write_update_link_to_data_base()
 
             # update label (good/bad) from QoS parameters (using lstm)
-            _learnWeight.get_learn_weight(dicdata=dicdata)
+            # _learnWeight.get_learn_weight(dicdata=dicdata)
 
             # Tao dataset
             lstmWeight.lstmWeight().create_lstm_data(dicdata)
-            try:
-                # upload link learn to ccdn database
-                # write_ccdn()
-                write_learn_weights_ccdn()
-            except:
-                print("GHI VAO CCDN LOI ~ NHO MONGOD")
+            # try:
+            #     # upload link learn to ccdn database
+            #     # write_ccdn()
+            #     write_learn_weights_ccdn()
+            # except:
+            #     print("GHI VAO CCDN LOI ~ NHO MONGOD")
 
         return content
 
