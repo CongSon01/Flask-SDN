@@ -76,7 +76,7 @@ def write_data():
         # dicdata['byteReceived'] = float(dicdata['byteReceived'])
         # dicdata['byteSent'] = float(dicdata['byteSent']) 
         check_overhead = (float(dicdata['byteSent']) + float(dicdata['byteReceived']))
-        dicdata['overhead'] =( float(dicdata['byteReceived']) + float(dicdata['byteSent'])  ) / (8 * 10**6)  # nguong Mbit => byte
+        dicdata['overhead'] =( float(dicdata['byteReceived']) + float(dicdata['byteSent'])  ) / (10**6)  # nguong Mbit => byte
         # print("DATA RAW: ")
         # print(dicdata)
         threshold = 20 
