@@ -72,10 +72,11 @@ def write_data():
             else:
                 dicdata[d[0]] = d[1]
 
+        
         #  remove default data
-        # dicdata['byteReceived'] = float(dicdata['byteReceived'])
-        # dicdata['byteSent'] = float(dicdata['byteSent']) 
-        check_overhead = ( float(dicdata['byteReceived']) + float(dicdata['byteSent'])  ) * 8 * 10**-6
+        dicdata['byteReceived'] = float(dicdata['byteReceived']) 
+        dicdata['byteSent'] = float(dicdata['byteSent']) 
+        check_overhead = ( float(dicdata['byteReceived']) + float(dicdata['byteSent'])    )  * 8 / 100
         dicdata['overhead'] = check_overhead
         # print("DATA RAW: ")
         # print(dicdata)
