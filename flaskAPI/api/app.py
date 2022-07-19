@@ -79,8 +79,8 @@ def write_data():
         dicdata['overhead'] = check_overhead
         # print("DATA RAW: ")
         # print(dicdata)
-        threshold_min = 10
-        threshold_max = 100 
+        threshold_min = 10 * 8 * 10**-6 # byte => Mbi
+        threshold_max = 100 * 8 * 10**-6 # byte => Mbi
         if threshold_min < check_overhead < threshold_max:
             print("****************** Cap nhat du lieu ******************")
             # push data to rabbit (mechanism pub/sub)
