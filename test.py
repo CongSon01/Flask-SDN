@@ -13,3 +13,5 @@ overhead = ( (sent + byteReceived * 8)) / 1000000  # convert byte/s => Mb/s
 print(overhead)
 a = 20 * 10**6 / 8
 print(a)
+
+print(10**-6)
