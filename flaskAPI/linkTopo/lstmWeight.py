@@ -67,11 +67,12 @@ class lstmWeight():
                      "byteReceived": float(byteReceived),
                      "label": label,
                      }
-        print("DATA NEW: ")
-        print(temp_data)
+        # print("DATA NEW: ")
+        # print(temp_data)
         try:
             data_search = {'overhead': temp_data['overhead']}
-            print('INSERT LSTM')
+            print('INSERT data to LSTM')
+            print(temp_data)
             if Lstm.is_data_exit(data_search=data_search):
                 Lstm.update_many(data_search, temp_data)
             else:

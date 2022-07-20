@@ -79,11 +79,11 @@ def write_data():
         dicdata['overhead'] = check_overhead
         # print("DATA RAW: ")
         # print(dicdata)
-        threshold_min = 0
-        threshold_max = 10**6
+        # threshold_min = 0
+        # threshold_max = 10**6
         print(dicdata)
-        if threshold_min < check_overhead < threshold_max:
-            print("****************** Cap nhat du lieu ******************")
+        # if threshold_min < check_overhead < threshold_max:
+        print("****************** Cap nhat du lieu ******************")
             # push data to rabbit (mechanism pub/sub)
             # pub.connectRabbitMQ(data=dicdata)
             # consume data from rabbit
@@ -95,7 +95,7 @@ def write_data():
             # _learnWeight.get_learn_weight(dicdata=dicdata)
 
             # Tao dataset
-            lstmWeight.lstmWeight().create_lstm_data(dicdata)
+        lstmWeight.lstmWeight().create_lstm_data(dicdata)
             # try:
             #     # upload link learn to ccdn database
             #     # write_ccdn()
