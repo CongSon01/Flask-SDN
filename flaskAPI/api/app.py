@@ -73,14 +73,14 @@ def write_data():
                 dicdata[d[0]] = d[1]
   
         #  remove default data
-        dicdata['byteReceived'] = float(dicdata['byteReceived']) * 8 * 10**-6 # byte => Mbit
-        dicdata['byteSent'] = float(dicdata['byteSent']) * 8 * 10**-6 # byte => Mbit
-        check_overhead = ( float(dicdata['byteReceived']) + float(dicdata['byteSent'])    )  
+        dicdata['byteReceived'] = float(dicdata['byteReceived']) # byte
+        dicdata['byteSent'] = float(dicdata['byteSent']) # byte
+        check_overhead = ( float(dicdata['byteReceived']) + float(dicdata['byteSent'])   )  
         dicdata['overhead'] = check_overhead
         # print("DATA RAW: ")
         # print(dicdata)
-        threshold_min = 800
-        threshold_max = 5000
+        threshold_min = 0
+        threshold_max = 10**6
         print(dicdata)
         if threshold_min < check_overhead < threshold_max:
             print("****************** Cap nhat du lieu ******************")
