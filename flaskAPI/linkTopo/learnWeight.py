@@ -26,7 +26,7 @@ class learnWeight():
         delay = float(dicdata['delay'])
         # linkUtilization = float(dicdata['linkUtilization']) if float(dicdata['linkUtilization']) == 1.0 else random.uniform(0, 0.7)
         linkUtilization = float(dicdata['linkUtilization'])
-        packetLoss = float(dicdata['packetLoss'])
+        packetLoss = float(dicdata['packetLossRate'])
         # byteSent = float(dicdata['byteSent']) 
         # byteReceived = float(dicdata['byteReceived'])
         # overhead = (byteSent + byteReceived) / 1000000 # convert to MB
@@ -43,10 +43,8 @@ class learnWeight():
             data_search = {'src': temp_data['src'], 'dst': temp_data['dst']}
             if LearnWeightModel.is_data_exit(data_search=data_search):
                 LearnWeightModel.update_many(data_search, temp_data)
-                print('UPDATE WEIGHT')
             else:
                 LearnWeightModel.insert_data(data=temp_data)
-                print('INSERT WEIGHT')
                 # print("Ghi vao local may nay thanh cong")
         except:
             print("--------------- Write Predict_linkWeight loi")

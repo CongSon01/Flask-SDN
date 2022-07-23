@@ -1,6 +1,6 @@
 
 # This is a basic forwarding component used in the article:
-# Authors: Nam-Thang Hoang, Hai-Anh Tran, Cong-Son Duong, Le-Tuan Nguyen
+# Authors: Nam-Thang Hoang, Hai-Anh Tran, Cong-Son Duong, Tran-Le-Tuan Nguyen
 # SOICT 
 
 # In this program, there are 2 components: 
@@ -18,8 +18,8 @@ sys.path.append(PATH_ABSOLUTE+'flaskAPI/linkTopo')
 from flask import Flask, request, jsonify
 
 # import database
-import LinkVersion, learnWeight, lstmWeight
-import updateWeight, LearnWeightModel
+import LinkVersion, learnWeight, lstmWeight, EndPoint
+import updateWeight, LearnWeightModel, LinkVersion
 import pub
 import time
 import json
@@ -54,6 +54,7 @@ def write_data_ryu():
 # communicate with onos controller
 @app.route('/write_data/',  methods=['GET', 'POST'])
 def write_data():
+    global starttime
     if request.method == 'GET':
         return "Da nhan duoc GET"
 
@@ -62,7 +63,6 @@ def write_data():
         content = request.data.decode("utf-8") 
         dicdata = {}
         datas = content.split("&")
-        # print(datas)
         # processing data
         for data in datas:
             d = data.split(":")
@@ -73,50 +73,80 @@ def write_data():
                 dicdata[d[0]] = d[1]
   
         #  remove default data
-        dicdata['byteReceived'] = float(dicdata['byteReceived']) # byte
-        dicdata['byteSent'] = float(dicdata['byteSent']) # byte
-        check_overhead = ( float(dicdata['byteReceived']) + float(dicdata['byteSent'])   )  
+        dicdata['byteReceived'] = float(dicdata['byteReceived']) * 10**-6 # Byte => MB
+        dicdata['byteSent'] = float(dicdata['byteSent']) * 10**-6         # Byte => MB
+        check_overhead = ( float(dicdata['byteReceived']) + float(dicdata['byteSent']) ) / 2  
         dicdata['overhead'] = check_overhead
-        # print("DATA RAW: ")
-        # print(dicdata)
-        # threshold_min = 0
-        # threshold_max = 10**6
-        print(dicdata)
-        # if threshold_min < check_overhead < threshold_max:
-        print("****************** Cap nhat du lieu ******************")
-            # push data to rabbit (mechanism pub/sub)
-            # pub.connectRabbitMQ(data=dicdata)
-            # consume data from rabbit
-            # update.read_params_from_rabbit()
-            # Update QoS parameter and save to local database   (using linkcost)
-            # update.write_update_link_to_data_base()
+        threshold_min = 0.8
+        threshold_max = 70
 
-            # update label (good/bad) from QoS parameters (using lstm)   
-            # _learnWeight.get_learn_weight(dicdata=dicdata)
+        # loai bo du lieu ao
+        if threshold_min < check_overhead < threshold_max:
+            print("****************** Cap nhat du lieu ******************")
+            update.update_link_params(dicdata)
 
-            # Tao dataset
-        lstmWeight.lstmWeight().create_lstm_data(dicdata)
-            # try:
-            #     # upload link learn to ccdn database
-            #     # write_ccdn()
-            #     write_learn_weights_ccdn()
-            # except:
-            #     print("GHI VAO CCDN LOI ~ NHO MONGOD")
+        # print("LinkVersionN TAI: ", time.time() - starttime )
+        if time.time() - starttime > 45:
+            print("GUI DATA CHO CCDN")
+            data_temp = LinkVersion.get_multiple_data()
+            # chia TB cac tham so
+            for d in data_temp:
+                d_tmp = {
+                        'src': d['src'],
+                        'dst': d['dst'],
+                        'delay': float(d['delay'])/float(d['count']),
+                        'linkUtilization': float(d['linkUtilization'])/float(d['count']),
+                        'packetLoss': float(d['packetLoss'])/float(d['count']),
+                        'overhead': float(d['overhead'])/float(d['count']),
+                        'byteSent': float(d['byteSent'])/float(d['count']),
+                        'byteReceived': float(d['byteReceived'])/float(d['count'])
+                    }
+                url_ccdn = "http://" + ip_ccdn + ":5000/write_full_data/"
+                requests.post(url_ccdn, data=json.dumps({'link_versions': d_tmp}))
+
+            LinkVersion.remove_all()
+            starttime = time.time()
 
         return content
 
-def write_ccdn():
-    # Get data from local and upload to ccdn database
-    data = LinkVersion.get_multiple_data()
-    url_ccdn = "http://" + ip_ccdn + ":5000/write_full_data/"
-    requests.post(url_ccdn, data=json.dumps({'link_versions': data}))
-    return 
+#SERVER COST FROM ONOS 
+@app.route('/write_server_data/',  methods=['GET', 'POST'])
+def write_server_data():
+    if request.method == 'GET':
+        return "Da nhan duoc GET"
+
+    if request.method == 'POST':
+        # app.logger.info("Da nhan dc POST")
+        content = request.data.decode("utf-8") 
+        dicdata = {}
+        datas = content.split("&")
+        # processing data
+        for data in datas:
+            # print(data)
+            d = data.split(":")
+            if len(d) == 3:
+                temp = [d[1], d[2]]
+                dicdata[d[0]] = ":".join(temp)
+            else:
+                dicdata[d[0]] = d[1]
+
+        # print(dicdata)
+        data_search = {'srcLink': dicdata['srcLink'], 'portInfo': dicdata['portInfo']}
+        if EndPoint.is_data_exit(data_search=data_search):
+            EndPoint.update_many(data_search, dicdata)
+        else:
+            EndPoint.insert_data(data=dicdata)
+        
+        # # write to CCDN
+        url_ccdn = "http://" + ip_ccdn + ":5000/write_EndPoint/"
+        requests.post(url_ccdn, data=json.dumps({'EndPoint_datas': dicdata}))
+        return content
 
 def write_learn_weights_ccdn():
     # Get data from local and upload to ccdn database
     data = LearnWeightModel.get_multiple_data()
     url_ccdn = "http://" + ip_ccdn + ":5000/write_learn_weights/"
-    requests.post(url_ccdn, data=json.dumps({'learn_weights': data}))
+    requests.post(url_ccdn, data=json.dumps({ data}))
     return 
 
 # @app.route('/write_W_SDN/',  methods=['GET', 'POST'])

@@ -1,4 +1,5 @@
 import sys
+
 sys.path.append('/home/onos/Downloads/flask_SDN/Flask-SDN/flaskAPI/dataBaseMongo')
 sys.path.append('/home/onos/Downloads/flask_SDN/Flask-SDN/flaskAPI/api')
 import numpy as np
@@ -36,13 +37,17 @@ class linkWeight(object):
         """
         self.delay = float(params_data['delay'])
         self.link_utilization = float(params_data['linkUtilization'])
-        self.packet_loss = float(params_data['packetLoss'])
+        self.packet_loss = float(params_data['packetLossRate'])
         self.byte_sent = float(params_data['byteSent'])
         self.byte_received = float(params_data['byteReceived'])
+        # print("data link")
+        # print(self.delay, self.link_utilization, self.pac)
 
         self.delay_stack.append(self.delay)
         self.link_utilization_stack.append(self.link_utilization)
         self.packet_loss_stack.append(self.packet_loss)
+        # print("rate")
+        # print(self.packet_loss_stack)
 
         self.byte_sent_stack.append( self.byte_sent )
         self.byte_received_stack.append(self.byte_received)
@@ -59,6 +64,8 @@ class linkWeight(object):
         self.W.append(delay_vector)
         self.W.append(link_utilization_vector)
         self.W.append(packet_loss_vector)
+        # print(packet_loss_vector)
+                   
         self.W.append(byte_sent_vector)
         self.W.append(byte_received_vector)
         
@@ -66,9 +73,13 @@ class linkWeight(object):
         # print("-----------------")
 
         for x in range(len(self.W)):
+            # tinh trung binh tung feature vector (delay, LU, PL, byteSent, byteReceived)
             cost = np.mean(self.W[x])
             link_cost.append(cost)
 
         return link_cost
+
+
+    
 
     

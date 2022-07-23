@@ -44,9 +44,10 @@ class lstmWeight():
         delay = float(dicdata['delay']) # nano/s
         # linkUtilization = float(dicdata['linkUtilization']) if float(dicdata['linkUtilization']) == 1.0 else random.uniform(0, 0.7)
         linkUtilization = float(dicdata['linkUtilization'])
-        packetLoss = float(dicdata['packetLoss']) 
+        packetLoss = float(dicdata['packetLossRate']) 
         byteSent = float(dicdata['byteSent']) 
         byteReceived = float(dicdata['byteReceived'])
+        
         overhead =  float(dicdata['overhead'])  # convert byte/s => Mb/s
         if (overhead > 35):
             ratio_overhead = (overhead - 35)/35
@@ -72,7 +73,7 @@ class lstmWeight():
         try:
             data_search = {'overhead': temp_data['overhead']}
             print('INSERT data to LSTM')
-            print(temp_data)
+            # print(temp_data)
             if Lstm.is_data_exit(data_search=data_search):
                 Lstm.update_many(data_search, temp_data)
             else:
