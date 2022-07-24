@@ -101,6 +101,7 @@ def write_data():
                         'byteSent': float(d['byteSent'])/float(d['count']),
                         'byteReceived': float(d['byteReceived'])/float(d['count']),
                         'linkVersion': d['linkVersion'],
+                        'ratio_overhead': d['ratio_overhead'],
                         'ip_local': str(json.load(open('/home/onos/Downloads/flask_SDN/config.json'))['ip_local'])
                     }
                 url_ccdn = "http://" + ip_ccdn + ":5000/write_full_data/"

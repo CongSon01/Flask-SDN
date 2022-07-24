@@ -69,6 +69,11 @@ class updateWeight(object):
         if self.save_linkVersion.get(tmp_name) is None:
             self.save_linkVersion[tmp_name] = 1
 
+        if (overhead > 30):
+            ratio_overhead = (overhead - 30) / 30
+        else:
+            ratio_overhead = 0
+
         temp_data = {"src": src,
                     "dst": dst,
                     "delay": float(delay),
@@ -78,7 +83,8 @@ class updateWeight(object):
                     "byteSent": float(byteSent),
                     "byteReceived": float(byteReceived),
                     "count": 1,
-                    "linkVersion": 1
+                    "linkVersion": 1,
+                    "ratio_overhead": float(ratio_overhead)
             }
 
 
@@ -106,6 +112,7 @@ class updateWeight(object):
         # print(data_link)
 
         # cong don data moi va data cu trong DB
+        ratio_overhead = temp_data['ratio_overhead'] + data_link['ratio_overhead']
         delay = temp_data['delay'] + data_link['delay']
         linkUtilization =  temp_data['linkUtilization'] + data_link['linkUtilization']
         packetLoss = temp_data['packetLoss'] + data_link['packetLoss']
@@ -124,7 +131,8 @@ class updateWeight(object):
                         "byteSent": float(byteSent),
                         "byteReceived": float(byteReceived),
                         "count": count,
-                        "linkVersion": self.save_linkVersion[temp_name]
+                        "linkVersion": self.save_linkVersion[temp_name],
+                        "ratio_overhead": float(ratio_overhead)
             }
 
         # print(new_temp_data)
