@@ -59,3 +59,15 @@ class learnWeight():
                 # print("Thanh cong")
         except:
             print("flask Goi nhieu SDN loiiiiiiiiiiiiiiiiiiiii")
+
+
+    def write_W_SDN(self, num_W):
+        try:
+            data = LearnWeightModel.get_multiple_data()
+            for ip in random.sample(self.ip_remote, num_W):
+                # print('ghi vao ip: ', ip)
+                url = "http://" + ip + ":5000/write_link_version/"
+                requests.post(url, data=json.dumps({'link_versions': data}))
+                # print("Thanh cong")
+        except:
+            print("flask Goi nhieu SDN loiiiiiiiiiiiiiiiiiiiii")
