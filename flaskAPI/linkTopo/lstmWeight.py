@@ -29,7 +29,7 @@ class lstmWeight():
         # Return: 1 => good, 0 ==> bad
 
         p_delay = self.convert_delay(delay=delay, delay_min=0, delay_max=500)
-        p_linkUtilization = self.convert_linkUtilization(linkUtilization=linkUtilization, linkUtilization_min=0.2, linkUtilization_max=0.6)
+        p_linkUtilization = self.convert_linkUtilization(linkUtilization=linkUtilization, linkUtilization_min=0.2, linkUtilization_max=0.7)
         # p_packetLoss = self.convert_packetLoss(packetLoss=packetLoss, packetLoss_min=0.0, packetLoss_max=0.22)
 
         # p_linkVersion = self.convert_linkVersion(linkVersion=linkVersion, linkVersion_min=0, linkVersion_max=1)
@@ -49,8 +49,9 @@ class lstmWeight():
         byteReceived = float(dicdata['byteReceived'])
         
         overhead =  float(dicdata['overhead'])  # convert byte/s => Mb/s
-        if (overhead > 35):
-            ratio_overhead = (overhead - 35)/35
+
+        if (overhead > 30):
+            ratio_overhead = (overhead - 30)/30
         else:
             ratio_overhead = 0
         
