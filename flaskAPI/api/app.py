@@ -83,7 +83,7 @@ def write_data():
         # loai bo du lieu ao
         if threshold_min < check_overhead < threshold_max:
             print("****************** Cap nhat du lieu ******************")
-            lstmWeight.create_lstm_data(dicdata)
+            lstmWeight.lstmWeight().create_lstm_data(dicdata)
             
         # ------- Dung de tinh link Cost sau 45s --------
             # update.update_link_params(dicdata)
