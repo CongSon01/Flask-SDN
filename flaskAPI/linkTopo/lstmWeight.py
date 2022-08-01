@@ -79,10 +79,10 @@ class lstmWeight():
                 Lstm.update_many(data_search, temp_data)
             else:
                 Lstm.insert_data(data=temp_data)
-                if self.is_write_ccdn == "True":
-                    url_ccdn = "http://" + self.ip_ccdn + ":5000/write_full_data/"
-                    # page_sanitized = json.loads(json.dumps(temp_data))
-                    requests.post(url_ccdn, data=json_util.dumps(temp_data))
+                # if self.is_write_ccdn == "True":
+                #     url_ccdn = "http://" + self.ip_ccdn + ":5000/write_full_data/"
+                #     # page_sanitized = json.loads(json.dumps(temp_data))
+                #     requests.post(url_ccdn, data=json_util.dumps(temp_data))
             # print("Ghi vao local may nay thanh cong")
         except:
             print("--------------- Write LSTM loi")
