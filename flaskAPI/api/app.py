@@ -83,33 +83,39 @@ def write_data():
         # loai bo du lieu ao
         if threshold_min < check_overhead < threshold_max:
             print("****************** Cap nhat du lieu ******************")
-            lstmWeight.lstmWeight().create_lstm_data(dicdata)
+            # lstmWeight.lstmWeight().create_lstm_data(dicdata)
             
         # ------- Dung de tinh link Cost sau 45s --------
-            # update.update_link_params(dicdata)
-        # if time.time() - starttime > 45:
-        #     print("GUI DATA CHO CCDN")
-        #     data_temp = LinkVersion.get_multiple_data()
-        #     # chia TB cac tham so
-        #     for d in data_temp:
-        #         d_tmp = {
-        #                 'src': d['src'],
-        #                 'dst': d['dst'],
-        #                 'delay': float(d['delay'])/float(d['count']),
-        #                 'linkUtilization': float(d['linkUtilization'])/float(d['count']),
-        #                 'packetLoss': float(d['packetLoss'])/float(d['count']),
-        #                 'overhead': float(d['overhead'])/float(d['count']),
-        #                 'byteSent': float(d['byteSent'])/float(d['count']),
-        #                 'byteReceived': float(d['byteReceived'])/float(d['count']),
-        #                 'linkVersion': d['linkVersion'],
-        #                 'ratio_overhead': d['ratio_overhead'],
-        #                 'ip_local': str(json.load(open('/home/onos/Downloads/flask_SDN/config.json'))['ip_local'])
-        #             }
-        #         url_ccdn = "http://" + ip_ccdn + ":5000/write_full_data/"
-        #         requests.post(url_ccdn, data=json.dumps({'link_versions': d_tmp}))
+            update.update_link_params(dicdata)
+        if time.time() - starttime > 45:
+            print("GUI DATA CHO CCDN")
+            data_temp = LinkVersion.get_multiple_data()
+            # chia TB cac tham so
+            for d in data_temp:
+                d_tmp = {
+                        'src': d['src'],
+                        'dst': d['dst'],
+                        'delay': float(d['delay'])/float(d['count']),
+                        'linkUtilization': float(d['linkUtilization'])/float(d['count']),
+                        'packetLoss': float(d['packetLoss'])/float(d['count']),
+                        'overhead': float(d['overhead'])/float(d['count']),
+                        'byteSent': float(d['byteSent'])/float(d['count']),
+                        'byteReceived': float(d['byteReceived'])/float(d['count']),
+                        'linkVersion': d['linkVersion'],
+                        'ratio_overhead': d['ratio_overhead'],
+                        'ip_local': str(json.load(open('/home/onos/Downloads/flask_SDN/config.json'))['ip_local'])
+                    }
 
-        #     LinkVersion.remove_all()
-        #     starttime = time.time()
+                # ghi de tinh trong so routing
+                learnWeight.get_learn_weight(d_tmp)
+                write_learn_weights_ccdn()
+
+                # ghi de thong ke du lieu
+                url_ccdn = "http://" + ip_ccdn + ":5000/write_full_data/"
+                requests.post(url_ccdn, data=json.dumps({'link_versions': d_tmp}))
+
+            LinkVersion.remove_all()
+            starttime = time.time()
 
         return content
 
