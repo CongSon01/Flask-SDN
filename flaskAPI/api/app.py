@@ -73,6 +73,7 @@ def write_data():
                 dicdata[d[0]] = d[1]
   
         #  remove default data
+        print(dicdata)
         dicdata['byteReceived'] = float(dicdata['byteReceived']) * 10**-6 # Byte => MB
         dicdata['byteSent'] = float(dicdata['byteSent']) * 10**-6         # Byte => MB
         check_overhead = ( float(dicdata['byteReceived']) + float(dicdata['byteSent']) ) / 2  
