@@ -27,11 +27,12 @@ class learnWeight():
         # linkUtilization = float(dicdata['linkUtilization']) if float(dicdata['linkUtilization']) == 1.0 else random.uniform(0, 0.7)
         linkUtilization = float(dicdata['linkUtilization'])
         packetLoss = float(dicdata['packetLoss'])
+        ratio_overhead = float(dicdata['ratio_overhead'])
         # byteSent = float(dicdata['byteSent']) 
         # byteReceived = float(dicdata['byteReceived'])
         # overhead = (byteSent + byteReceived) / 1000000 # convert to MB
         overhead = float(dicdata['overhead'])  # convert byte/s => Mb/s
-        tmp_data = [delay, linkUtilization, overhead, packetLoss]
+        tmp_data = [delay, linkUtilization, overhead, packetLoss, ratio_overhead]
         label = self.predict_label(tmp_data)
 
         temp_data = {"src": src,
