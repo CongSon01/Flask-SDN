@@ -26,7 +26,7 @@ class learnWeight():
         delay = float(dicdata['delay'])
         # linkUtilization = float(dicdata['linkUtilization']) if float(dicdata['linkUtilization']) == 1.0 else random.uniform(0, 0.7)
         linkUtilization = float(dicdata['linkUtilization'])
-        packetLoss = float(dicdata['packetLossRate'])
+        packetLoss = float(dicdata['packetLoss'])
         # byteSent = float(dicdata['byteSent']) 
         # byteReceived = float(dicdata['byteReceived'])
         # overhead = (byteSent + byteReceived) / 1000000 # convert to MB
