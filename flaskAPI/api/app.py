@@ -156,7 +156,7 @@ def write_learn_weights_ccdn():
     # Get data from local and upload to ccdn database
     data = LearnWeightModel.get_multiple_data()
     url_ccdn = "http://" + ip_ccdn + ":5000/write_learn_weights/"
-    requests.post(url_ccdn, data=json.dumps({ data}))
+    requests.post(url_ccdn, data=json.dumps({ 'learn_weights': data}))
     return 
 
 # @app.route('/write_W_SDN/',  methods=['GET', 'POST'])
