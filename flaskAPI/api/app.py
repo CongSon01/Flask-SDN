@@ -107,7 +107,7 @@ def write_data():
                     }
 
                 # ghi de tinh trong so routing
-                learnWeight.get_learn_weight(d_tmp)
+                learnWeight.learnWeight().get_learn_weight(d_tmp)
                 write_learn_weights_ccdn()
 
                 # ghi de thong ke du lieu
