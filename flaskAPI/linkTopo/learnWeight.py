@@ -27,18 +27,20 @@ class learnWeight():
         # linkUtilization = float(dicdata['linkUtilization']) if float(dicdata['linkUtilization']) == 1.0 else random.uniform(0, 0.7)
         linkUtilization = float(dicdata['linkUtilization'])
         packetLoss = float(dicdata['packetLoss'])
-        ratio_overhead = float(dicdata['ratio_overhead'])
+        version = float(dicdata['linkVersion'])
+        # overhead = float(dicdata['overhead'])
         # byteSent = float(dicdata['byteSent']) 
         # byteReceived = float(dicdata['byteReceived'])
         # overhead = (byteSent + byteReceived) / 1000000 # convert to MB
         overhead = float(dicdata['overhead'])  # convert byte/s => Mb/s
-        tmp_data = [delay, linkUtilization, overhead, packetLoss, ratio_overhead]
+        tmp_data = [delay, linkUtilization, overhead, packetLoss, overhead]
         label = self.predict_label(tmp_data)
 
         temp_data = {"src": src,
                      "dst": dst,
                      "IpSDN": self.ip_local,
                      "label": label,
+                     "version": version
                      }
         try:
             data_search = {'src': temp_data['src'], 'dst': temp_data['dst']}
@@ -62,13 +64,13 @@ class learnWeight():
             print("flask Goi nhieu SDN loiiiiiiiiiiiiiiiiiiiii")
 
 
-    def write_W_SDN(self, num_W):
-        try:
-            data = LearnWeightModel.get_multiple_data()
-            for ip in random.sample(self.ip_remote, num_W):
-                # print('ghi vao ip: ', ip)
-                url = "http://" + ip + ":5000/write_link_version/"
-                requests.post(url, data=json.dumps({'link_versions': data}))
-                # print("Thanh cong")
-        except:
-            print("flask Goi nhieu SDN loiiiiiiiiiiiiiiiiiiiii")
+    # def write_W_SDN(self, num_W):
+    #     try:
+    #         data = LearnWeightModel.get_multiple_data()
+    #         for ip in random.sample(self.ip_remote, num_W):
+    #             # print('ghi vao ip: ', ip)
+    #             url = "http://" + ip + ":5000/write_link_version/"
+    #             requests.post(url, data=json.dumps({'link_versions': data}))
+    #             # print("Thanh cong")
+    #     except:
+    #         print("flask Goi nhieu SDN loiiiiiiiiiiiiiiiiiiiii")
