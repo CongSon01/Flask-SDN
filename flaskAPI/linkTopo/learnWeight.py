@@ -17,7 +17,7 @@ class learnWeight():
     # Predict label based on local model
     # Params: QoS
     # Return: 1 => good, 0 ==> bad
-    predict_label = lambda self, data : self.lstm_model.predict(data)
+    predict_link_cost = lambda self, data : self.lstm_model.predict(data)
 
     def get_learn_weight(self, dicdata):
         # update QoS from SINA data and insert into batabase (dataset)
@@ -34,12 +34,12 @@ class learnWeight():
         # overhead = (byteSent + byteReceived) / 1000000 # convert to MB
         overhead = float(dicdata['overhead'])  # convert byte/s => Mb/s
         tmp_data = [delay, linkUtilization, overhead, packetLoss, overhead]
-        label = self.predict_label(tmp_data)
+        link_cost = self.predict_link_cost(tmp_data)
 
         temp_data = {"src": src,
                      "dst": dst,
                      "IpSDN": self.ip_local,
-                     "label": label,
+                     "link_cost": link_cost,
                      "version": version
                      }
         try:
