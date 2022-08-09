@@ -24,14 +24,11 @@ class learnWeight():
         src = dicdata['src']
         dst = dicdata['dst']
         delay = float(dicdata['delay'])
-        # linkUtilization = float(dicdata['linkUtilization']) if float(dicdata['linkUtilization']) == 1.0 else random.uniform(0, 0.7)
+        
         linkUtilization = float(dicdata['linkUtilization'])
         packetLoss = float(dicdata['packetLoss'])
         version = float(dicdata['linkVersion'])
-        # overhead = float(dicdata['overhead'])
-        # byteSent = float(dicdata['byteSent']) 
-        # byteReceived = float(dicdata['byteReceived'])
-        # overhead = (byteSent + byteReceived) / 1000000 # convert to MB
+
         overhead = float(dicdata['overhead'])  # convert byte/s => Mb/s
         tmp_data = [delay, linkUtilization, overhead, packetLoss, overhead]
         link_cost = self.predict_link_cost(tmp_data)
@@ -48,7 +45,6 @@ class learnWeight():
                 LearnWeightModel.update_many(data_search, temp_data)
             else:
                 LearnWeightModel.insert_data(data=temp_data)
-                # print("Ghi vao local may nay thanh cong")
         except:
             print("--------------- Write Predict_linkWeight loi")
     
@@ -57,20 +53,8 @@ class learnWeight():
             data = LearnWeightModel.get_multiple_data()
             for ip in random.sample(self.ip_remote, num_W):
                 # print('ghi vao ip: ', ip)
-                url = "http://" + ip + ":5000/write_learn_weights/"
-                requests.post(url, data=json.dumps({'learn_weights': data}))
+                url = "http://" + ip + ":5000/write_learn_link/"
+                requests.post(url, data=json.dumps({'learn_link': data}))
                 # print("Thanh cong")
         except:
             print("flask Goi nhieu SDN loiiiiiiiiiiiiiiiiiiiii")
-
-
-    # def write_W_SDN(self, num_W):
-    #     try:
-    #         data = LearnWeightModel.get_multiple_data()
-    #         for ip in random.sample(self.ip_remote, num_W):
-    #             # print('ghi vao ip: ', ip)
-    #             url = "http://" + ip + ":5000/write_link_version/"
-    #             requests.post(url, data=json.dumps({'link_versions': data}))
-    #             # print("Thanh cong")
-    #     except:
-    #         print("flask Goi nhieu SDN loiiiiiiiiiiiiiiiiiiiii")
