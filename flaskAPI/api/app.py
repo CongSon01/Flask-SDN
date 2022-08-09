@@ -193,7 +193,7 @@ def write_W_SDN():
     # API: Get N_w parameter from CCDN and write to local data of N_w SDNs
     if request.method == 'POST':
         W_contant = request.data
-        learnWeight.write_W_SDN(int(W_contant))
+        learnWeight.learnWeight().write_W_SDN(int(W_contant))
         return W_contant
 
 @app.route('/write_learn_link/',  methods=['GET', 'POST'])
