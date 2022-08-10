@@ -35,4 +35,4 @@ class lstm_model():
 
     def predict(self, data):
         new_input = self.min_max_scaler(data)
-        return self.model.predict( np.array([new_input, ]))
+        return self.model.predict( np.array([new_input, ]))[0][0]

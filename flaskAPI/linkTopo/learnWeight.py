@@ -31,7 +31,7 @@ class learnWeight():
 
         overhead = float(dicdata['overhead'])  # convert byte/s => Mb/s
         tmp_data = [delay, linkUtilization, overhead, packetLoss, overhead]
-        link_cost = self.predict_link_cost(tmp_data)
+        link_cost = float(self.predict_link_cost(tmp_data))
 
         temp_data = {"src": src,
                      "dst": dst,
@@ -39,22 +39,23 @@ class learnWeight():
                      "link_cost": link_cost,
                      "version": version
                      }
-        try:
-            data_search = {'src': temp_data['src'], 'dst': temp_data['dst']}
-            if LearnWeightModel.is_data_exit(data_search=data_search):
-                LearnWeightModel.update_many(data_search, temp_data)
-            else:
-                LearnWeightModel.insert_data(data=temp_data)
-        except:
-            print("--------------- Write Predict_linkWeight loi")
+        print(temp_data)
+        # try:
+        data_search = {'src': temp_data['src'], 'dst': temp_data['dst']}
+        if LearnWeightModel.is_data_exit(data_search=data_search):
+            LearnWeightModel.update_many(data_search, temp_data)
+        else:
+            LearnWeightModel.insert_data(data=temp_data)
+        # except:
+        #     print("--------------- Write Predict_linkWeight loi")
     
     def write_W_SDN(self, num_W):
-        try:
+        # try:
             data = LearnWeightModel.get_multiple_data()
             for ip in random.sample(self.ip_remote, num_W):
                 # print('ghi vao ip: ', ip)
                 url = "http://" + ip + ":5000/write_learn_link/"
                 requests.post(url, data=json.dumps({'learn_link': data}))
                 # print("Thanh cong")
-        except:
-            print("flask Goi nhieu SDN loiiiiiiiiiiiiiiiiiiiii")
+        # except:
+        #     print("flask Goi nhieu SDN loiiiiiiiiiiiiiiiiiiiii")
