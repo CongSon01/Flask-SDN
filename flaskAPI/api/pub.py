@@ -5,7 +5,6 @@ import json
 Publisher: Day la file muc dich day du lieu raw vao rabbit MQ
 """
 
-
 def connectRabbitMQ(data):
     # chuyen data thanh json
     msg = json.dumps(data)

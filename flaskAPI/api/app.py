@@ -6,7 +6,8 @@
 # In this program, there are 2 components: 
 # Component 1: API to receive data from SINA system in the article: https://doi.org/10.3390/electronics11070975 
 # data will be calculated by us QoS parameters save to local database
-# Component 2: We implement apis to communicate with other SDNs with mechanism Adaptive Consistency and with CCDN
+# Component 2: We build PLC Model to predict link cost based on QoS params collected in the past
+# Component 3: We implement apis to communicate with other SDNs with mechanism Adaptive Consistency and with CCDN
 
 import logging
 import sys
@@ -45,16 +46,13 @@ starttime = time.time()
 def write_data_ryu():
     content = request.data
     data = json.loads(content)
-    if float(data['byteSent']) > 600 and float(data['byteReceived']) > 600:
-        # Params.insert_n_data(data)
-        pub.connectRabbitMQ(data=data)
+    preprocessing(dicdata=data)
     return 'Sondzai'
 
 
 # communicate with onos controller
 @app.route('/write_data/',  methods=['GET', 'POST'])
 def write_data():
-    global starttime
     if request.method == 'GET':
         return "Da nhan duoc GET"
 
@@ -71,53 +69,53 @@ def write_data():
                 dicdata[d[0]] = ":".join(temp)
             else:
                 dicdata[d[0]] = d[1]
+        preprocessing(dicdata=dicdata)
   
-        #  remove default datas
-        dicdata['byteReceived'] = float(dicdata['byteReceived']) * 10**-6 # Byte => MB
-        dicdata['byteSent'] = float(dicdata['byteSent']) * 10**-6         # Byte => MB
-        check_overhead = ( float(dicdata['byteReceived']) + float(dicdata['byteSent']) ) / 2  
-        dicdata['overhead'] = check_overhead
-        threshold_min = 0.8
-        threshold_max = 70
+# data preprocessing and predict link cost
+def preprocessing(dicdata):
+    global starttime
+    #  remove default datas
+    dicdata['byteReceived'] = float(dicdata['byteReceived']) * 10**-6 # Byte => MB
+    dicdata['byteSent'] = float(dicdata['byteSent']) * 10**-6         # Byte => MB
+    check_overhead = ( float(dicdata['byteReceived']) + float(dicdata['byteSent']) ) / 2  
+    dicdata['overhead'] = check_overhead
+    threshold_min = 0.8
+    threshold_max = 70
+    # loai bo du lieu ao
+    if threshold_min < check_overhead < threshold_max:
+        print("****************** Cap nhat du lieu ******************")
+        # lstmWeight.lstmWeight().create_lstm_data(dicdata)   # remove comment to collected datasets
+        
+    # ------- Dung de tinh link Cost sau 45s --------
+        update.update_link_params(dicdata)
+    if time.time() - starttime > 45:
+        print("GUI DATA CHO CCDN")
+        data_temp = LinkVersion.get_multiple_data()
+        # chia TB cac tham so
+        for d in data_temp:
+            d_tmp = {
+                'src': d['src'],
+                'dst': d['dst'],
+                'delay': float(d['delay'])/float(d['count']),
+                'linkUtilization': float(d['linkUtilization'])/float(d['count']),
+                'packetLoss': float(d['packetLoss'])/float(d['count']),
+                'overhead': float(d['overhead'])/float(d['count']),
+                'byteSent': float(d['byteSent'])/float(d['count']),
+                'byteReceived': float(d['byteReceived'])/float(d['count']),
+                'linkVersion': d['linkVersion'],
+                'ratio_overhead': d['ratio_overhead'],
+                'ip_local': str(json.load(open('/home/onos/Downloads/flask_SDN/config.json'))['ip_local'])
+            }
+            # ghi de tinh trong so routing
+            learnWeight.learnWeight().get_learn_weight(d_tmp)
+            write_learn_weights_ccdn()
+            # ghi de thong ke du lieu
+            url_ccdn = "http://" + ip_ccdn + ":5000/write_full_data/"
+            requests.post(url_ccdn, data=json.dumps({'link_versions': d_tmp}))
+        LinkVersion.remove_all()
+        starttime = time.time()
+        return 
 
-        # loai bo du lieu ao
-        if threshold_min < check_overhead < threshold_max:
-            print("****************** Cap nhat du lieu ******************")
-            # lstmWeight.lstmWeight().create_lstm_data(dicdata)
-            
-        # ------- Dung de tinh link Cost sau 45s --------
-            update.update_link_params(dicdata)
-        if time.time() - starttime > 45:
-            print("GUI DATA CHO CCDN")
-            data_temp = LinkVersion.get_multiple_data()
-            # chia TB cac tham so
-            for d in data_temp:
-                d_tmp = {
-                        'src': d['src'],
-                        'dst': d['dst'],
-                        'delay': float(d['delay'])/float(d['count']),
-                        'linkUtilization': float(d['linkUtilization'])/float(d['count']),
-                        'packetLoss': float(d['packetLoss'])/float(d['count']),
-                        'overhead': float(d['overhead'])/float(d['count']),
-                        'byteSent': float(d['byteSent'])/float(d['count']),
-                        'byteReceived': float(d['byteReceived'])/float(d['count']),
-                        'linkVersion': d['linkVersion'],
-                        'ratio_overhead': d['ratio_overhead'],
-                        'ip_local': str(json.load(open('/home/onos/Downloads/flask_SDN/config.json'))['ip_local'])
-                    }
-
-                # ghi de tinh trong so routing
-                learnWeight.learnWeight().get_learn_weight(d_tmp)
-                write_learn_weights_ccdn()
-
-                # ghi de thong ke du lieu
-                url_ccdn = "http://" + ip_ccdn + ":5000/write_full_data/"
-                requests.post(url_ccdn, data=json.dumps({'link_versions': d_tmp}))
-
-            LinkVersion.remove_all()
-            starttime = time.time()
-
-        return content
 
 #SERVER COST FROM ONOS 
 @app.route('/write_server_data/',  methods=['GET', 'POST'])
@@ -158,15 +156,6 @@ def write_learn_weights_ccdn():
     url_ccdn = "http://" + ip_ccdn + ":5000/write_learn_weights/"
     requests.post(url_ccdn, data=json.dumps({ 'learn_weights': data}))
     return 
-
-# @app.route('/write_W_SDN/',  methods=['GET', 'POST'])
-# def write_W_SDN():
-#     # API: Get N_w parameter from CCDN and write to local data of N_w SDNs
-#     if request.method == 'POST':
-#         W_contant = request.data
-#         update.write_W_SDN(int(W_contant))
-#         return W_contant
-
 
 @app.route('/write_link_version/',  methods=['GET', 'POST'])
 def write_link_version():

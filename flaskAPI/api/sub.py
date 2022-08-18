@@ -1,7 +1,6 @@
 import pika
 import json
 
-
 class Sub(object):
     """
     Subscriber: Day la file muc dich nhan du lieu tu rabbit MQ
